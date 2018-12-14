@@ -10,12 +10,6 @@ function resetHMS(d) {
   d.setMilliseconds(0);
   return d;
 }
-function resetHMSfromEpoc(epoc) {
-  return resetHMS(new Date(epoc)).getTime();
-}
-function roundHMSfromEpoc(epoc) {
-  return resetHMS(new Date(epoc + (24 * 60 * 60 * 1000) / 2)).getTime();
-}
 function getRelativeDate(day) {
   let d = new Date();
   resetHMS(d);
@@ -76,20 +70,25 @@ function generateMonthDiff(viewport) {
 function daysInMonth(month, year) {
   return new Date(year, month, 0).getDate();
 }
-let width = 600;
+let width = 960;
 let height = 300;
+let margin = {
+  top: 32,
+  bottom: 16
+};
 const oneMonth = 30;
 
 app.get("/:text/gantt.svg", (req, res) => {
   let viewport = {
     start: getRelativeDate(-1 * oneMonth).getTime(),
-    end: getRelativeDate(2 * oneMonth).getTime()
+    end: getRelativeDate(3 * oneMonth).getTime()
   };
 
   res.set("Content-Type", svgContent);
-  const taskHtml = req
-    .param("text")
-    .split("\n")
+  const tasks = req.param("text").split("\n");
+  height = tasks.length * 32 + margin.top + margin.bottom;
+
+  const taskHtml = tasks
     .map((i, idx) => createTask(parse(i), idx, viewport))
     .join("\n");
   const today = scale(
@@ -110,7 +109,7 @@ app.get("/:text/gantt.svg", (req, res) => {
       <g transform="translate(${dx}, 0)">
         <text  fill="#333" font-size='16' x="4" y="16" alignment-baseline="top" >${month.getMonth() +
           1}月</text>
-        <line stroke="#999" stroke-width="2" x1="0" y1="0" x2="0" y2="300"></line>
+        <line stroke="#999" stroke-width="2" x1="0" y1="0" x2="0" y2="${height}"></line>
       </g>
     `;
     })
@@ -152,7 +151,8 @@ app.get("/:text/gantt.svg", (req, res) => {
         width
       );
       return `
-      <rect fill="#F5F5F5" x="${s}" y="0" width="${e - s}" height="300"></rect>
+      <rect fill="#F8F8F8" x="${s}" y="0" width="${e -
+        s}" height="${height}"></rect>
     `;
     })
     .join("\n");
@@ -162,7 +162,7 @@ app.get("/:text/gantt.svg", (req, res) => {
     xmlns='http://www.w3.org/2000/svg'
     xmlns:xlink='http://www.w3.org/1999/xlink'
     version='1.1'
-    width="${width}" height="300" viewBox="0 0 ${width} 300" style="background: #EEE;">
+    width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" style="background: #EEE;">
     <g>
     ${weeksHtml}
     </g>
@@ -171,8 +171,8 @@ app.get("/:text/gantt.svg", (req, res) => {
     ${monthsHtml}
     </g>
 
-    <line stroke="red" x1="${today}" y1="0" x2="${today}" y2="300"></line>
-    <g transform="translate(0, 32)">
+    <line stroke="red" x1="${today}" y1="0" x2="${today}" y2="${height}"></line>
+    <g transform="translate(0, ${margin.top})">
     ${taskHtml}
     </g>
 </svg>

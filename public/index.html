@@ -4,11 +4,130 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>SVG Gantt for Scrapbox</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/bootstrap@4.1.0/dist/css/bootstrap-reboot.min.css"
+    />
+    <style>
+      body {
+        margin: 0;
+      }
+      body,
+      html {
+        height: 100%;
+      }
+      #app {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      .pane {
+        flex: 1;
+        display: flex;
+        background: #666;
+      }
+
+      textarea {
+        background: #333;
+        color: white;
+        flex: 1;
+      }
+      .nav__title {
+        font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans",
+          Garuda, Verdana, Tahoma, sans-serif;
+        font-size: 20px;
+        flex: 1;
+        margin-left: 0.5rem;
+        line-height: 2.6rem;
+      }
+      .nav {
+        display: flex;
+        background: #333;
+        color: white;
+      }
+    </style>
   </head>
   <body>
-    <div>It works!</div>
-    <div>
-      <img src="http://localhost:5001/svg-render/us-central1/render/2018-12-12%202018-12-13%20task1%0D%0A2018-12-13%202018-12-15%20task2/gantt.svg">
+    <div id="app">
+      <div class="nav">
+        <span class="nav__title"><b>Ganttdown</b> for Scrapbox</span>
+        <button @click="getText">貼り付けコードを取得</button>
+      </div>
+      <div class="pane">
+        <div>
+          <!--
+            <img src="http://localhost:5001/svg-render/us-central1/render/2018-12-12%202018-12-13%20task1%0D%0A2018-12-13%202018-12-15%20task2/gantt.svg">
+          -->
+          <img :src="url" />
+        </div>
+      </div>
+      <div class="pane">
+        <textarea v-model="input" name="" id="" cols="30" rows="10"></textarea>
+      </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.20/dist/vue.js"></script>
+    <script>
+      function getExample() {
+        function getDateStr(d) {
+          return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+        }
+        let d = new Date();
+        let ds1 = getDateStr(d);
+        d.setDate(d.getDate() + 10);
+        let ds2 = getDateStr(d);
+        d.setDate(d.getDate() + 20);
+        let ds3 = getDateStr(d);
+        return `${ds1} ${ds2} タスク1
+      ${ds2} ${ds3} タスク2`;
+      }
+
+      new Vue({
+        el: "#app",
+        data: {
+          input: "",
+          url: "",
+          editUrl: ""
+        },
+        watch: {
+          input() {
+            this.render();
+          }
+        },
+        methods: {
+          render: _.debounce(function() {
+            let input = this.input
+              .split("\n")
+              .filter(i => i.match(/[\d-]+ [\d-]+ .*/))
+              .join("\n");
+            this.url = `https://us-central1-svg-render.cloudfunctions.net/render/${encodeURIComponent(
+              input
+            )}/gantt.svg`;
+
+            //For local development
+            // this.url = `http://localhost:5001/svg-render/us-central1/render/${encodeURIComponent(input)}/gantt.svg`
+            this.editUrl =
+              window.location.href.split("?")[0] +
+              "?source=" +
+              encodeURIComponent(input);
+          }, 1000),
+          getText() {
+            const text = `[${this.url} ${this.editUrl}]`;
+            window.prompt("下記の文字列をScrapboxにコピペしてください", text);
+          }
+        },
+        mounted() {
+          let params = new URLSearchParams(location.search.slice(1));
+          let source = params.get("source");
+          if (source) {
+            this.input = source;
+          } else {
+            this.input = getExample();
+          }
+          this.render();
+        }
+      });
+    </script>
   </body>
 </html>
