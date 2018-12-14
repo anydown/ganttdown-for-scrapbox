@@ -37,7 +37,7 @@ function createTask(task, index, viewport) {
   const end = scale(task.end, viewport.start, viewport.end, 0, width);
 
   return `
-    <g transform="translate(${start}, ${index * 36})">
+    <g transform="translate(${start}, ${index * taskHeight})">
         <rect fill="#AAE"  x="0" y="0" width="${end -
           start}" height="32"></rect>
         <text fill="#333" font-size='16' x="4" y="16" alignment-baseline="central" font-weight='600'>${
@@ -77,7 +77,7 @@ let margin = {
   bottom: 16
 };
 const oneMonth = 30;
-
+const taskHeight = 36;
 app.get("/:text/gantt.svg", (req, res) => {
   let viewport = {
     start: getRelativeDate(-1 * oneMonth).getTime(),
@@ -86,7 +86,7 @@ app.get("/:text/gantt.svg", (req, res) => {
 
   res.set("Content-Type", svgContent);
   const tasks = req.param("text").split("\n");
-  height = tasks.length * 32 + margin.top + margin.bottom;
+  height = tasks.length * taskHeight + margin.top + margin.bottom;
 
   const taskHtml = tasks
     .map((i, idx) => createTask(parse(i), idx, viewport))
