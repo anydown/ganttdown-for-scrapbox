@@ -2,14 +2,7 @@ const functions = require("firebase-functions");
 
 const app = require("express")();
 const svgContent = "image/svg+xml; charset=utf-8";
-
-function resetHMS(d) {
-  d.setHours(0);
-  d.setMinutes(0);
-  d.setSeconds(0);
-  d.setMilliseconds(0);
-  return d;
-}
+const resetHMS = require("../public/util").resetHMS;
 function getRelativeDate(day) {
   let d = new Date();
   resetHMS(d);
@@ -28,9 +21,6 @@ function getNewDate(str, offset) {
 function scale(value, oldMin, oldMax, newMin, newMax) {
   return ((value - oldMin) * (newMax - newMin)) / (oldMax - oldMin) + newMin;
 }
-function scale_r(value, oldMin, oldMax, newMin, newMax) {
-  return Math.round(scale(value, oldMin, oldMax, newMin, newMax));
-}
 
 function createTask(task, index, viewport) {
   const start = scale(task.start, viewport.start, viewport.end, 0, width);
@@ -38,6 +28,7 @@ function createTask(task, index, viewport) {
 
   return `
     <g transform="translate(${start}, ${index * taskHeight})">
+        <title>${start} ${task.label}</title>
         <rect fill="#AAE"  x="0" y="0" width="${end -
           start}" height="32"></rect>
         <text fill="#333" font-size='16' x="4" y="16" alignment-baseline="central" font-weight='600'>${

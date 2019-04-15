@@ -50,8 +50,9 @@
   <body>
     <div id="app">
       <div class="nav">
-        <span class="nav__title"><b>Ganttdown</b> for Scrapbox</span>
-        <button @click="getText">貼り付けコードを取得</button>
+        <span class="nav__title"><b>Ganttdown</b></span>
+        <button @click="getText">ScrapBoxコードを取得</button>
+        <button @click="getHtml">HTMLコードを取得</button>
       </div>
       <div class="pane">
         <div>
@@ -105,7 +106,9 @@
             )}/gantt.svg`;
 
             //For local development
-            // this.url = `http://localhost:5001/svg-render/us-central1/render/${encodeURIComponent(input)}/gantt.svg`
+            // this.url = `http://localhost:5001/svg-render/us-central1/render/${encodeURIComponent(
+            //   input
+            // )}/gantt.svg`;
             this.editUrl =
               window.location.href.split("?")[0] +
               "?source=" +
@@ -114,6 +117,12 @@
           getText() {
             const text = `[${this.url} ${this.editUrl}]`;
             window.prompt("下記の文字列をScrapboxにコピペしてください", text);
+          },
+          getHtml() {
+            const text = `<a href="${this.editUrl}"><img src="${
+              this.url
+            }"></a>`;
+            window.prompt("下記の文字列をコピペしてください", text);
           }
         },
         mounted() {
