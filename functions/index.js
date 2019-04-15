@@ -2,7 +2,7 @@ const functions = require("firebase-functions");
 
 const app = require("express")();
 const svgContent = "image/svg+xml; charset=utf-8";
-const resetHMS = require("../public/util").resetHMS;
+const resetHMS = require("./util").resetHMS;
 function getRelativeDate(day) {
   let d = new Date();
   resetHMS(d);
@@ -58,9 +58,6 @@ function generateMonthDiff(viewport) {
   }
   return months;
 }
-function daysInMonth(month, year) {
-  return new Date(year, month, 0).getDate();
-}
 let width = 960;
 let height = 300;
 let margin = {
@@ -72,7 +69,7 @@ const taskHeight = 36;
 app.get("/:text/gantt.svg", (req, res) => {
   let viewport = {
     start: getRelativeDate(-1 * oneMonth).getTime(),
-    end: getRelativeDate(3 * oneMonth).getTime()
+    end: getRelativeDate(4 * oneMonth).getTime()
   };
 
   res.set("Content-Type", svgContent);
