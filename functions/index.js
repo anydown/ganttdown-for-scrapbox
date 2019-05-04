@@ -58,7 +58,7 @@ function generateMonthDiff(viewport) {
   }
   return months;
 }
-let width = 960;
+let width = 1260;
 let height = 300;
 let margin = {
   top: 32,
@@ -69,7 +69,7 @@ const taskHeight = 36;
 app.get("/:text/gantt.svg", (req, res) => {
   let viewport = {
     start: getRelativeDate(-1 * oneMonth).getTime(),
-    end: getRelativeDate(4 * oneMonth).getTime()
+    end: getRelativeDate(6 * oneMonth).getTime()
   };
 
   res.set("Content-Type", svgContent);
